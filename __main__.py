@@ -1,6 +1,8 @@
-import os
 import csv
+import os
+
 from dotenv import load_dotenv
+
 from logic.factory_scraper import FactoryScraper
 
 # Read keywords from csv

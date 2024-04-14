@@ -1,13 +1,20 @@
 import os
 import pickle
 from time import sleep
+from typing import Optional
+
 from rich import print
+
 from libs import WebScraping
 
 
 class FactoryScraper(WebScraping):
     def __init__(
-        self, username: str, password: str, keywords: list, headless: bool = False
+        self,
+        username: Optional[str],
+        password: Optional[str],
+        keywords: list,
+        headless: bool = False,
     ) -> None:
         """starts chrome and initializes the scraper
 
@@ -54,7 +61,7 @@ class FactoryScraper(WebScraping):
                 cookies = pickle.load(file)
             return self.__load_cookies__(cookies)
 
-        # if cookies doesn't exists perform login
+        # if cookies doesn't exists do login
         username = self.get_elem(selectors["username"])
         username.send_keys(self.username)
 
@@ -79,16 +86,16 @@ class FactoryScraper(WebScraping):
         """Loop through orders and stores it to be processed later."""
 
         selectors = {
-            "orders_tab": '.orders .nav.nav-tabs > li:first-child a',
+            "orders_tab": ".orders .nav.nav-tabs > li:first-child a",
             "orders": "div#availableOrders div.single-order",
             "order_button": "div#availableOrders div.single-order' \
                 '.order-detail-btn .btn-for-bright",
             "order_link": "a",
             "order_title": "h3",
-            "order_accept": '',
-            "order_ok": '',
+            "order_accept": "button.btn.order-accept-btn.btn-for-bright",
+            "order_ok": "",
         }
-        
+
         # Move to orders tab
         for _ in range(3):
             self.click_js(selectors["orders_tab"])
@@ -98,10 +105,10 @@ class FactoryScraper(WebScraping):
 
         orders_accepted = 0
         for order in range(0, len(orders)):
-            
+
             # Validate order title
-            selector_order = f"{selectors['orders']}:nth-child({order+1})"
-            title = self.get_text(selector_order)
+            selector_order = f"{selectors['orders']}:nth-child({order + 1})"
+            title = self.get_text(f"{selector_order} {selectors['order_title']}")
             target = self.__filter__(title)
 
             if not target:
@@ -111,9 +118,10 @@ class FactoryScraper(WebScraping):
             self.click_js(f"{selector_order} {selectors['order_accept']}")
             self.refresh_selenium()
             self.click_js(f"{selector_order} {selectors['order_ok']}")
+
             print(f"Order {title} accepted")
             orders_accepted += 1
-            
+
         print(f"Total orders accepted: {orders_accepted}")
 
     def __filter__(self, title) -> bool:
@@ -124,11 +132,16 @@ class FactoryScraper(WebScraping):
 
         Returns: boolean
         """
-        
+
         for keyword in self.keywords:
+            # print(keyword.strip().lower(), title.strip().lower())
             if keyword.strip().lower() == title.strip().lower():
                 return True
         return False
+
+    def __retrieve_new_orders__(self) -> None:
+        """Search for new orders."""
+        self.set_page("https://www.boostingfactory.com/profile")
 
     def automate_orders(self) -> None:
         """automate accepting orders."""
@@ -139,8 +152,15 @@ class FactoryScraper(WebScraping):
 
         self.__login__()
 
-        # Select 'Current order' tab
-        self.click_js(selectors["current_orders"])
+        while True:
+            self.set_page("https://www.boostingfactory.com/profile")
 
-        # Loop available orders and accept by title
-        self.__loop_orders__()
+            # Select 'Current order' tab
+            self.click_js(selectors["current_orders"])
+
+            # Loop available orders and accept by title
+            self.__loop_orders__()
+
+            # Wait 1 minute
+            print("waiting 1 minute...")
+            sleep(60)
