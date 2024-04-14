@@ -146,21 +146,13 @@ class FactoryScraper(WebScraping):
     def automate_orders(self) -> None:
         """automate accepting orders."""
 
-        selectors = {
-            "current_orders": "a[href='#ongoingOrders']",
-        }
-
         self.__login__()
 
         while True:
-            self.set_page("https://www.boostingfactory.com/profile")
-
-            # Select 'Current order' tab
-            self.click_js(selectors["current_orders"])
 
             # Loop available orders and accept by title
             self.__loop_orders__()
 
             # Wait 1 minute
-            print("waiting 1 minute...")
-            sleep(60)
+            print("waiting...")
+            sleep(10)
