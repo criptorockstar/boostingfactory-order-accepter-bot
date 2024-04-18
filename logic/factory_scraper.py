@@ -93,7 +93,7 @@ class FactoryScraper(WebScraping):
             "order_link": "a",
             "order_title": "h3",
             "order_accept": "button.btn.order-accept-btn.btn-for-bright",
-            "order_ok": "",
+            "order_ok": ".answer-btn",
         }
 
         # Move to orders tab
@@ -117,7 +117,7 @@ class FactoryScraper(WebScraping):
             # Accept order
             self.click_js(f"{selector_order} {selectors['order_accept']}")
             self.refresh_selenium()
-            self.click_js(f"{selector_order} {selectors['order_ok']}")
+            self.click_js(f"{selectors['order_ok']}")
 
             print(f"Order {title} accepted")
             orders_accepted += 1
