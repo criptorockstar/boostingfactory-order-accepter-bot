@@ -81,13 +81,14 @@ class FactoryScraper(WebScraping):
             self.driver.add_cookie(cookie)
 
         self.set_page("https://www.boostingfactory.com/profile")
+        self.zoom(50)
 
     def __loop_orders__(self) -> None:
         """Loop through orders and stores it to be processed later."""
 
         selectors = {
             "orders_tab": ".orders .nav.nav-tabs > li:first-child a",
-            "orders": "div#availableOrders div.single-order",
+            "orders": "div#availableOrders .orders-preloader + div",
             "order_button": "div#availableOrders div.single-order' \
                 '.order-detail-btn .btn-for-bright",
             "order_link": "a",
@@ -107,8 +108,9 @@ class FactoryScraper(WebScraping):
         for order in range(0, len(orders)):
 
             # Validate order title
-            selector_order = f"{selectors['orders']}:nth-child({order + 1})"
-            title = self.get_text(f"{selector_order} {selectors['order_title']}")
+            selector_order = f"{selectors['orders']}:nth-child({(order + 1)*2})"
+            selector_title = f"{selector_order} {selectors['order_title']}"
+            title = self.get_text(selector_title)
             target = self.__filter__(title)
 
             if not target:
@@ -134,8 +136,7 @@ class FactoryScraper(WebScraping):
         """
 
         for keyword in self.keywords:
-            # print(keyword.strip().lower(), title.strip().lower())
-            if keyword.strip().lower() == title.strip().lower():
+            if keyword.strip().lower() == str(title).strip().lower():
                 return True
         return False
 
