@@ -47,10 +47,11 @@ class FactoryScraper(WebScraping):
         self.set_page("https://www.boostingfactory.com/login")
 
         sleep(3)
+        self.refresh_selenium()
 
         selectors = {
-            "username": "input#uName",
-            "password": "input[type='password'][name='uPassword']",
+            "username": "#uName",
+            "password": "#uPassword",
             "submit": "button[type='submit']",
         }
 
@@ -60,7 +61,7 @@ class FactoryScraper(WebScraping):
             with open("cookies.pkl", "rb") as file:
                 cookies = pickle.load(file)
             return self.__load_cookies__(cookies)
-
+        
         # if cookies doesn't exists do login
         username = self.get_elem(selectors["username"])
         username.send_keys(self.username)
