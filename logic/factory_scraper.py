@@ -15,6 +15,7 @@ class FactoryScraper(WebScraping):
         password: Optional[str],
         keywords: list,
         headless: bool = False,
+        wait_time: int = 60,
     ) -> None:
         """starts chrome and initializes the scraper
 
@@ -34,6 +35,9 @@ class FactoryScraper(WebScraping):
 
         # Title filter
         self.keywords = keywords
+        
+        # Refresh time
+        self.wait_time = wait_time
 
         self.extracted_orders = {}
 
@@ -77,6 +81,9 @@ class FactoryScraper(WebScraping):
                 self.__login__()
                 
                 return None
+            else:
+                print("Login successful.")
+                return None
                         
         # if cookies doesn't exists do login
         username = self.get_elem(selectors["username"])
@@ -92,6 +99,8 @@ class FactoryScraper(WebScraping):
         if "login" in current_page:
             print("Login failed. Check credentials and try again.")                
             quit()
+        else:
+            print("Login successful.")
 
         # store cookies
         cookies = self.get_browser().get_cookies()
@@ -121,9 +130,8 @@ class FactoryScraper(WebScraping):
         }
 
         # Move to orders tab
-        for _ in range(3):
-            self.click_js(selectors["orders_tab"])
-            self.refresh_selenium()
+        self.click_js(selectors["orders_tab"])
+        self.refresh_selenium(time_units=0.1)
 
         orders = self.get_elems(selectors["orders"])
 
@@ -178,5 +186,5 @@ class FactoryScraper(WebScraping):
             self.__loop_orders__()
 
             # Wait 1 minute
-            print("waiting...")
-            sleep(10)
+            print(f"waiting {self.wait_time} milliseconds")
+            sleep(self.wait_time/1000)

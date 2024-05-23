@@ -17,10 +17,15 @@ load_dotenv()
 HEADLESS = os.getenv("SHOW_BROWSER") != "True"
 USERNAME = os.getenv("USERNAME_SCRAPER")
 PASSWORD = os.getenv("PASSWORD")
+WAIT_TIME = int(os.getenv("WAIT_TIME"))
 
 if __name__ == "__main__":
     factory_scraper = FactoryScraper(
-        headless=HEADLESS, username=USERNAME, password=PASSWORD, keywords=KEYWORDS
+        headless=HEADLESS,
+        username=USERNAME,
+        password=PASSWORD,
+        keywords=KEYWORDS,
+        wait_time=WAIT_TIME
     )
 
     factory_scraper.automate_orders()
