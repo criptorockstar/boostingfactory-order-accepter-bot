@@ -15,7 +15,7 @@ with open(csv_path, "r") as file:
 # Read .env's configuration
 load_dotenv()
 HEADLESS = os.getenv("SHOW_BROWSER") != "True"
-USERNAME = os.getenv("USERNAME")
+USERNAME = os.getenv("USERNAME_SCRAPER")
 PASSWORD = os.getenv("PASSWORD")
 
 if __name__ == "__main__":

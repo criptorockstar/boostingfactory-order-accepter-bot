@@ -60,8 +60,24 @@ class FactoryScraper(WebScraping):
             # if cookies are found load them
             with open("cookies.pkl", "rb") as file:
                 cookies = pickle.load(file)
-            return self.__load_cookies__(cookies)
-        
+                
+                self.__load_cookies__(cookies)
+                self.refresh_selenium()
+                
+            # Validate login cookies
+            current_page = self.driver.current_url
+            if "login" in current_page:
+                print("Login failed. Posible cookies expired. Traying again...")
+                
+                # Delete cookies file
+                if os.path.exists("cookies.pkl"):
+                    os.remove("cookies.pkl")
+                
+                # Try login again
+                self.__login__()
+                
+                return None
+                        
         # if cookies doesn't exists do login
         username = self.get_elem(selectors["username"])
         username.send_keys(self.username)
@@ -70,6 +86,12 @@ class FactoryScraper(WebScraping):
         password.send_keys(self.password)
 
         self.click_js(selectors["submit"])
+        
+        # Validate login credentials
+        current_page = self.driver.current_url
+        if "login" in current_page:
+            print("Login failed. Check credentials and try again.")                
+            quit()
 
         # store cookies
         cookies = self.get_browser().get_cookies()
